@@ -3,16 +3,15 @@ from .models import Project, Task, Membership
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['name',]
+    list_display = ['id','name',]
 
 
 class TaskAmdin(admin.ModelAdmin):
-    list_display = ['title', 'description', 'project']
+    list_display = ['id', 'title', 'description', 'project']
 
 
 class MembershipAmdin(admin.ModelAdmin):
-    list_display = ['project', 'user', 'inviter', 'user_role', 'confirmed']
-
+    list_display = ['id', 'project', 'user', 'inviter', 'user_role', 'confirmed']
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Membership, MembershipAmdin)
