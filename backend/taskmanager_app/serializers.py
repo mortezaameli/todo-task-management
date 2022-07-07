@@ -2,23 +2,30 @@ from rest_framework import serializers
 from .models import Project, Task, Membership
 from django.contrib.auth import get_user_model
 
+
 User = get_user_model()
 
-
-class MembershipSerializers(serializers.Serializer):
-    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    inviter = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    user_role = serializers.CharField(required=True)
-    confirmed = serializers.BooleanField()
-
-    # def create(self, validated_data):
-    #     return Membership.objects.create(**validated_data)
-
+# -----------------------------------------------------------------------------
 
 class ProjectSerializers(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(required=True)
 
-    def create(self, validated_data):
-        return Project.objects.create(**validated_data)
+# -----------------------------------------------------------------------------
+
+class UserInlineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'username']
+
+# -----------------------------------------------------------------------------
+
+class MembershipSerializers(serializers.Serializer):
+    id = serializers.CharField(source='project.id', read_only=True)
+    name = serializers.CharField(source='project.name', read_only=True)
+    user = UserInlineSerializer(read_only=True)
+    inviter = UserInlineSerializer(read_only=True)
+    user_role = serializers.CharField(required=True)
+    confirmed = serializers.BooleanField()
+
+# -----------------------------------------------------------------------------

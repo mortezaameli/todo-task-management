@@ -5,7 +5,5 @@ from .views import *
 urlpatterns = [
     path('projects/', ProjectListView.as_view()),
     path('project/<int:pk>/', ProjectRetrieveView.as_view()),
-    # path('project/', ProjectCreateView.as_view()),
-    # path('membership/', MembershipInfoMixinView.as_view()),
-    # path('membership/', MembershipInfoMixinView.as_view()),
+    path('project/', ProjectCreateView.as_view()),
 ]

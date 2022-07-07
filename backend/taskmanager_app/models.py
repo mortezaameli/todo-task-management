@@ -5,12 +5,12 @@ User = get_user_model()
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=80, unique=True, blank=False, null=False)
+    name    = models.CharField(max_length=80, blank=False, null=False)
     members = models.ManyToManyField(
-            User,
-            through='Membership',
-            through_fields=('project', 'user'),
-    )
+                User,
+                through='Membership',
+                through_fields=('project', 'user'),
+            )
 
     def __str__(self) -> str:
         return self.name
@@ -18,26 +18,31 @@ class Project(models.Model):
 
 class Membership(models.Model):
     ADMIN_ROLE = 'Admin'
-    USER_ROLE = 'User'
+    USER_ROLE  = 'User'
     USER_ROLE_CHOICES = [
         (ADMIN_ROLE, 'Admin'),
         (USER_ROLE, 'User'),
     ]
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    inviter = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="membership_invites",
-        default=None,
-        blank=True,
-        null=True
-    )
+    project   = models.ForeignKey(Project, on_delete=models.CASCADE)
+    user      = models.ForeignKey(User, on_delete=models.CASCADE)
+    inviter   = models.ForeignKey(
+                    User,
+                    on_delete=models.CASCADE,
+                    related_name="membership_invites",
+                    default=None,
+                    blank=True,
+                    null=True
+                )
     user_role = models.CharField(max_length=5, choices=USER_ROLE_CHOICES, default=USER_ROLE)
     confirmed = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('project', 'user',)
+        constraints = [
+            models.UniqueConstraint(fields=['project', 'user'], name='project_user_uniqueness')
+        ]
+    
+    def is_exists(self):
+        return Membership.objects.filter(project__name=self.project.name,user=self.user).exists()
 
 
 class Task(models.Model):
