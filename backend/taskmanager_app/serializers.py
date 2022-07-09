@@ -29,3 +29,13 @@ class MembershipSerializers(serializers.Serializer):
     confirmed = serializers.BooleanField()
 
 # -----------------------------------------------------------------------------
+
+class ProjectInviteSerializer(serializers.Serializer):
+    project_id = serializers.IntegerField(required=True)
+    user_email = serializers.EmailField(required=True)
+
+# -----------------------------------------------------------------------------
+
+class ProjectInviteAnswerSerializer(serializers.Serializer):
+    project_id    = serializers.IntegerField(required=True)
+    confirmed     = serializers.BooleanField(required=True)

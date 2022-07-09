@@ -36,14 +36,6 @@ class Membership(models.Model):
     user_role = models.CharField(max_length=5, choices=USER_ROLE_CHOICES, default=USER_ROLE)
     confirmed = models.BooleanField(default=False)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['project', 'user'], name='project_user_uniqueness')
-        ]
-    
-    def is_exists(self):
-        return Membership.objects.filter(project__name=self.project.name,user=self.user).exists()
-
 
 class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')

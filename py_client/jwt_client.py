@@ -158,9 +158,8 @@ class JWTClient:
         return data
     
     def post_data(self, endpoint, post_data):
-        r = requests.post(endpoint, json=post_data, headers=self.get_headers()) 
-        if r.status_code != 200:
-            data = r.text
-            # raise Exception(f"Request not complete {r.text}")
-        data = r.json()
-        return data
+        r = requests.post(endpoint, json=post_data, headers=self.get_headers())
+        return {
+            'status_code': r.status_code,
+            'text' : r.text
+        }

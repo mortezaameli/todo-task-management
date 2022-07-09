@@ -44,14 +44,8 @@ class ProjectCreateView(APIView):
 
         try:
             # create a new membership object
-            member = self.create_membership(project)
-
-            # if user have same project name already 
-            if member.is_exists():
-                project.delete()
-                return Response(data={'err': 'A project with the same name already exists'}, status=HTTP_status.HTTP_400_BAD_REQUEST )
-            
-            member.save()
+            membership = self.create_membership(project)
+            membership.save()
 
         # if the membership object faild to save, must be deleted problematic project
         except:
@@ -63,12 +57,93 @@ class ProjectCreateView(APIView):
         '''
         create a membership object base on new project created by logined in user
         '''
-        member = models.Membership()
-        member.project = project
-        member.user = self.request.user
-        member.inviter = None
-        member.user_role = models.Membership.ADMIN_ROLE
-        member.confirmed = True
-        return member
+        membership = models.Membership()
+        membership.project = project
+        membership.user = self.request.user
+        membership.inviter = None
+        membership.user_role = models.Membership.ADMIN_ROLE
+        membership.confirmed = True
+        return membership
+
+# -----------------------------------------------------------------------------
+
+class ProjectInviteView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        '''
+        create a Membershipthat invite a user to the project,
+        '''
+        serializer= serializers.ProjectInviteSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        project_id = serializer.data.get('project_id')
+        user_email = serializer.data.get('user_email')
+
+        try:
+            project_obj = models.Project.objects.get(pk=project_id)
+        except models.Project.DoesNotExist:
+            return Response(data={'err': 'Project does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            invited_user = models.User.objects.get(email=user_email)
+        except models.User.DoesNotExist:
+            return Response(data={'err': 'Invited user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        # check the user invited herself
+        if invited_user == self.request.user:
+            return Response(data={'err': 'You cannot invite yourself to the project'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # check for invited user is already a member of the project
+        if models.Membership.objects.filter(project__id=project_id,user=invited_user).exists():
+            return Response(data={'err': 'Invited user is already a member of the project'}, status=status.HTTP_409_CONFLICT)
+
+        # create Membership for invited user to the project
+        membership = models.Membership()
+        membership.project = project_obj
+        membership.user = invited_user
+        membership.inviter = self.request.user
+        membership.user_role = models.Membership.USER_ROLE
+        membership.confirmed = False
+        membership.save()
+
+        return Response(data={'msg': 'The request for cooperation in the project was sent to the user'}, status=status.HTTP_200_OK)
+
+# -----------------------------------------------------------------------------
+
+class ProjectInviteAnswerView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        '''
+        Answer to project invitation
+        '''
+        serializer= serializers.ProjectInviteAnswerSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        project_id = serializer.data.get('project_id')
+        confirmed = serializer.data.get('confirmed')
+        user = self.request.user
+
+        # check this user has a membership of project
+        try:
+            membership = models.Membership.objects.get(project__id=project_id, user=user)
+        except models.Membership.DoesNotExist:
+            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_404_NOT_FOUND)
+
+        # check for user has already approved the membership request
+        if membership.confirmed:
+            print()
+            print(membership.__dict__)
+            print()
+            return Response(data={'err': 'You have already approved the membership invitation'}, status=status.HTTP_409_CONFLICT)
+
+        if confirmed:
+            membership.confirmed = True
+            membership.save()
+            return Response(data={'msg': 'You have been added to the project'}, status=status.HTTP_200_OK)
+        else:
+            membership.delete()
+            return Response(data={'msg': 'Your membership was rejected'}, status=status.HTTP_200_OK)
 
 # -----------------------------------------------------------------------------
