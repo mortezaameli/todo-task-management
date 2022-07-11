@@ -1,6 +1,6 @@
-# Login a user
+# Verify JWT Token
 
-Verify JWT access token
+verify JWT access token
 
 **URL** : `/api/verify/`
 

@@ -1,6 +1,6 @@
-# Login a user
+# Refresh JWT Token
 
-Refresh JWT access token
+refresh JWT access token with refresh token
 
 **URL** : `/api/refresh/`
 
@@ -23,7 +23,9 @@ Refresh JWT access token
 
 **response example:**
 ```json
-{}
+{
+    "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjU3NTQ2NDUxLCJpYXQiOjE2NTc1NDE2MDcsImp0aSI6ImQ4MDJlNjI0NGE3MjQ4NGNhZjU0ZDNiMjllYWFlMDg0IiwidXNlcl9pZCI6MX0.PJpTGK6O6syHckG8NdAlap_043omDjn8EZidFpGp3PI"
+}
 ```
 
 ## Error Response
