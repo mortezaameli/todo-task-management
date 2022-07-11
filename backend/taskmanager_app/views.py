@@ -29,7 +29,7 @@ class ProjectRetrieveView(APIView):
 
 class ProjectCreateView(APIView):
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         '''
         create a project Model,
         then add this project along with user creator data to Membership Model
@@ -38,7 +38,7 @@ class ProjectCreateView(APIView):
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        # create new project object 
+        # create new Project object 
         project = models.Project(**serializer.validated_data)
         project.save()
 
@@ -51,7 +51,8 @@ class ProjectCreateView(APIView):
         except:
             project.delete()
             return Response(data={'err': 'Failed to create project'}, status=HTTP_status.HTTP_400_BAD_REQUEST)
-        return Response(data={'id': project.pk})
+        
+        return Response(data={'id': project.pk}, status=status.HTTP_201_CREATED)
     
     def create_membership(self, project):
         '''
@@ -145,5 +146,37 @@ class ProjectInviteAnswerView(APIView):
         else:
             membership.delete()
             return Response(data={'msg': 'Your membership was rejected'}, status=status.HTTP_200_OK)
+
+# -----------------------------------------------------------------------------
+
+class TaskCreateView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        '''
+        create a Task in Project,
+        '''
+        serializer= serializers.TaskCreateSerializers(data=request.data)
+        if not serializer.is_valid():
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # check this user has a membership of project
+        project_id = serializer.data.get('project_id')
+        try:
+            membership = models.Membership.objects.get(project__id=project_id, user=self.request.user)
+        except models.Membership.DoesNotExist:
+            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_404_NOT_FOUND)
+
+        # check user Admin of the project to which the task is to be added
+        if membership.user_role != models.Membership.ADMIN_ROLE:
+            return Response(data={'err': 'Only the project admin can add task'}, status=status.HTTP_403_FORBIDDEN)
+
+        # create new Task object
+        task = models.Task()
+        task.project = membership.project
+        task.owner = self.request.user
+        task.title = serializer.data.get('title')
+        task.save()
+        
+        return Response(data={'id': task.pk}, status=status.HTTP_201_CREATED)
 
 # -----------------------------------------------------------------------------
