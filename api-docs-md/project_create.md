@@ -30,5 +30,5 @@ create new project
 
 ## Error Response
 
-* **Code** : `401 BAD_REQUEST`
+* **Code** : `400 BAD_REQUEST`
 * **Code** : `403 FORBIDDEN`
