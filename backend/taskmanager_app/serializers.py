@@ -42,6 +42,14 @@ class ProjectInviteAnswerSerializer(serializers.Serializer):
 
 # -----------------------------------------------------------------------------
 
+class ProjectMemberSerializer(serializers.Serializer):
+    username  = serializers.CharField(required=True, source='user.username')
+    email       = serializers.EmailField(required=True, source='user.email')
+    user_role       = serializers.CharField(required=True)
+    confirmed       = serializers.BooleanField(required=True)
+
+# -----------------------------------------------------------------------------
+
 class TaskCreateSerializers(serializers.Serializer):
     project_id  = serializers.IntegerField(source='project.id', required=True)
     title       = serializers.CharField(required=True)

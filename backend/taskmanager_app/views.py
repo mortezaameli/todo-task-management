@@ -117,6 +117,22 @@ class ProjectInviteView(APIView):
 
 # -----------------------------------------------------------------------------
 
+class ProjectMembersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        project_id = self.kwargs['pk']
+        memberships = models.Membership.objects.filter(project__id=project_id)
+        
+        # check user is a member of project
+        if not memberships.filter(user=self.request.user).exists():
+            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = serializers.ProjectMemberSerializer(memberships, many=True)
+        return Response(data=serializer.data)
+
+# -----------------------------------------------------------------------------
+
 class ProjectInviteAnswerView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
