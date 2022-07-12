@@ -5,11 +5,13 @@ from rest_framework.response import Response
 from . import serializers, models
 import rest_framework.status as HTTP_status
 from rest_framework import status
+from rest_framework import permissions
 
 # -----------------------------------------------------------------------------
 
 class ProjectListView(APIView):
-
+    permission_classes = [permissions.IsAuthenticated]
+    
     def get(self, request, *args, **kwargs):
         memberships = models.Membership.objects.filter(user=self.request.user)
         serializer = serializers.MembershipSerializers(memberships, many=True)
@@ -18,6 +20,7 @@ class ProjectListView(APIView):
 # -----------------------------------------------------------------------------
 
 class ProjectRetrieveView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         project_id = self.kwargs['pk']
@@ -28,6 +31,7 @@ class ProjectRetrieveView(APIView):
 # -----------------------------------------------------------------------------
 
 class ProjectCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         '''
@@ -69,6 +73,7 @@ class ProjectCreateView(APIView):
 # -----------------------------------------------------------------------------
 
 class ProjectInviteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         '''
@@ -113,6 +118,7 @@ class ProjectInviteView(APIView):
 # -----------------------------------------------------------------------------
 
 class ProjectInviteAnswerView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         '''
@@ -150,6 +156,7 @@ class ProjectInviteAnswerView(APIView):
 # -----------------------------------------------------------------------------
 
 class TaskCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         '''
