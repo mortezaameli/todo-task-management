@@ -25,7 +25,7 @@ invite other users to the project for collaborate
 **response example:**
 ```json
 {
-    "msg" : "The request for cooperation in the project was sent to the user"
+    "username": "username_of_invited_user"
 }
 ```
 

@@ -113,7 +113,7 @@ class ProjectInviteView(APIView):
         membership.confirmed = False
         membership.save()
 
-        return Response(data={'msg': 'The request for cooperation in the project was sent to the user'}, status=status.HTTP_200_OK)
+        return Response(data={'username': invited_user.username}, status=status.HTTP_200_OK)
 
 # -----------------------------------------------------------------------------
 
