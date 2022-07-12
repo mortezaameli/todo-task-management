@@ -18,4 +18,4 @@ This project written in the python Django Rest Framework (DRF)
 * [Projects list](api-docs-md/project_list.md) : &nbsp; **`GET`**  &nbsp;  `/projects/`
 * [Create project](api-docs-md/project_create.md) : &nbsp; **`POST`**  &nbsp;  `/project/`
 * [Invite to project](api-docs-md/invite_to_project.md) : &nbsp; **`POST`**  &nbsp;  `/project/invite/`
-* [Invite to project](api-docs-md/answer_to_invite.md) : &nbsp; **`POST`**  &nbsp;  `/project/invite/answer/`
+* [Answer to invitations](api-docs-md/answer_to_invite.md) : &nbsp; **`POST`**  &nbsp;  `/project/invite/answer/`
