@@ -17,5 +17,9 @@ This project written in the python Django Rest Framework (DRF)
 
 * [Projects list](api-docs-md/project_list.md) : &nbsp; **`GET`**  &nbsp;  `/projects/`
 * [Create project](api-docs-md/project_create.md) : &nbsp; **`POST`**  &nbsp;  `/project/`
+
+### Members
 * [Invite to project](api-docs-md/invite_to_project.md) : &nbsp; **`POST`**  &nbsp;  `/project/invite/`
 * [Answer to invitations](api-docs-md/answer_to_invite.md) : &nbsp; **`POST`**  &nbsp;  `/project/invite/answer/`
+* [Project members list](api-docs-md/project_members_list.md) : &nbsp; **`GET`**  &nbsp;  `/project/:pk/members`
+
