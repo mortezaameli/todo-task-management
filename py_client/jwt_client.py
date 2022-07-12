@@ -163,3 +163,10 @@ class JWTClient:
             'status_code': r.status_code,
             'text' : r.text
         }
+    
+    def delete_data(self, endpoint):
+        r = requests.delete(endpoint, headers=self.get_headers())
+        return {
+            'status_code': r.status_code,
+            'text' : r.text
+        }
