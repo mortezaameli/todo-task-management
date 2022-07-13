@@ -23,6 +23,9 @@ class ProjectView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+        '''
+        get project info
+        '''
         project_id = self.kwargs['pk']
         membership = models.Membership.objects.get(project__id=project_id, user=self.request.user)
         serializer = serializers.MembershipSerializers(membership)
@@ -33,7 +36,7 @@ class ProjectView(APIView):
         create a project Model,
         then add this project along with user creator data to Membership Model
         '''
-        serializer= serializers.ProjectSerializers(data=request.data)
+        serializer = serializers.ProjectSerializers(data=request.data)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
@@ -54,6 +57,9 @@ class ProjectView(APIView):
         return Response(data={'id': project.pk}, status=status.HTTP_201_CREATED)
     
     def delete(self, request, *args, **kwargs):
+        '''
+        delete project with id number
+        '''
         project_id = self.kwargs['pk']
 
         # check project is exists
@@ -64,7 +70,7 @@ class ProjectView(APIView):
 
         # check user is member of this project
         try:
-            membership = models.Membership.objects.get(project__id=project_id, user=self.request.user)
+            membership = models.Membership.objects.get(project=project_obj, user=self.request.user)
         except models.Membership.DoesNotExist:
             return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -72,8 +78,43 @@ class ProjectView(APIView):
         if membership.user_role != models.Membership.ADMIN_ROLE:
             return Response(data={'err': 'Only the admin of project can delete it'}, status=status.HTTP_403_FORBIDDEN)
 
-        models.Project.objects.filter(pk=project_id).delete()
+        project_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def put(self, request, *args, **kwargs):
+        '''
+        update project name
+        '''
+        project_id = self.kwargs['pk']
+
+        serializer = serializers.ProjectSerializers(data=request.data)
+        if not serializer.is_valid():
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        new_project_name = serializer.data.get('name')
+
+        # check project is exists
+        try:
+            project_obj = models.Project.objects.get(pk=project_id)
+        except models.Project.DoesNotExist:
+            return Response(data={'err': 'Project does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        # check user is member of this project
+        try:
+            membership = models.Membership.objects.get(project=project_obj, user=self.request.user)
+        except models.Membership.DoesNotExist:
+            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
+
+        # check user is admin of project
+        if membership.user_role != models.Membership.ADMIN_ROLE:
+            return Response(data={'err': 'Only the admin of project can update it'}, status=status.HTTP_403_FORBIDDEN)
+
+        # check new project name is equal with previous name
+        if project_obj.name == new_project_name:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        project_obj.name = new_project_name
+        project_obj.save()
+        return Response(data={'id': project_obj.id}, status=status.HTTP_200_OK)
 
     def create_membership(self, project):
         '''

@@ -164,6 +164,13 @@ class JWTClient:
             'text' : r.text
         }
     
+    def put_data(self, endpoint, put_data):
+        r = requests.put(endpoint, json=put_data, headers=self.get_headers())
+        return {
+            'status_code': r.status_code,
+            'text' : r.text
+        }
+    
     def delete_data(self, endpoint):
         r = requests.delete(endpoint, headers=self.get_headers())
         return {
