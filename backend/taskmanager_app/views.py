@@ -114,7 +114,7 @@ class ProjectView(APIView):
 
         project_obj.name = new_project_name
         project_obj.save()
-        return Response(data={'id': project_obj}, status=status.HTTP_200_OK)
+        return Response(data={'id': project_obj.id}, status=status.HTTP_200_OK)
 
     def create_membership(self, project):
         '''
