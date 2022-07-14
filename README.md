@@ -12,6 +12,7 @@ This project written in the python Django Rest Framework (DRF)
 * [Login and fetch JWT tokens](api-docs-md/login_user.md) : &nbsp; **`POST`**  &nbsp;  `/api/token/`
 * [Refresh access token](api-docs-md/refresh_token.md) : &nbsp; **`POST`**  &nbsp;  `/api/token/refresh/`
 * [Verify access token](api-docs-md/verify_token.md) : &nbsp; **`POST`**  &nbsp;  `/api/token/verify/`
+* [User profile info](api-docs-md/user_profile.md) : &nbsp; **`GET`**  &nbsp;  `/api/profile/`
 
 ### Projects
 
