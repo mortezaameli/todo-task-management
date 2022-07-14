@@ -114,7 +114,7 @@ class ProjectView(APIView):
 
         project_obj.name = new_project_name
         project_obj.save()
-        return Response(data={'id': project_obj.id}, status=status.HTTP_200_OK)
+        return Response(data={'id': project_obj}, status=status.HTTP_200_OK)
 
     def create_membership(self, project):
         '''
@@ -217,7 +217,7 @@ class ProjectInviteView(APIView):
 
 # -----------------------------------------------------------------------------
 
-class ProjectMembersView(APIView):
+class ProjectMemberListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -230,6 +230,45 @@ class ProjectMembersView(APIView):
 
         serializer = serializers.ProjectMemberSerializer(memberships, many=True)
         return Response(data=serializer.data)
+
+# -----------------------------------------------------------------------------
+
+class ProjectMemberView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        serializer = serializers.ProjectMemberSerializer(data=self.request.data)
+        if not serializer.is_valid():
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        deleted_user_email = serializer.data.get('email', self.request.user.email)
+        project_id = self.kwargs['pk']
+
+        # check the requesting user is a member of the project
+        try:
+            membership = models.Membership.objects.get(project__id=project_id, user=self.request.user)
+        except models.Membership.DoesNotExist:
+            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN) 
+
+        # The non-admin user leaves the project by herself
+        if membership.user_role == models.Membership.USER_ROLE:
+            if self.request.user.email != deleted_user_email:
+                return Response(data={'err': 'Only the project admin can delete other user'}, status=status.HTTP_403_FORBIDDEN) 
+            membership.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # check project admin requests to delete yourself!
+        if membership.user.email == deleted_user_email:
+            return Response(data={'err': 'You are admin, then you can not remove yourself from the project'}, status=status.HTTP_403_FORBIDDEN)
+
+        # check the requested user to delete is member of the project
+        try:
+            membership = models.Membership.objects.get(project__id=project_id, user__email=deleted_user_email)
+        except models.Membership.DoesNotExist:
+            return Response(data={'err': 'The selected user to delete is not a member of this project'}, status=status.HTTP_404_NOT_FOUND) 
+
+        membership.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 # -----------------------------------------------------------------------------
 

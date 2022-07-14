@@ -43,10 +43,10 @@ class ProjectInviteAnswerSerializer(serializers.Serializer):
 # -----------------------------------------------------------------------------
 
 class ProjectMemberSerializer(serializers.Serializer):
-    username  = serializers.CharField(required=True, source='user.username')
-    email       = serializers.EmailField(required=True, source='user.email')
-    user_role       = serializers.CharField(required=True)
-    confirmed       = serializers.BooleanField(required=True)
+    username  = serializers.CharField(read_only=True, source='user.username')
+    email     = serializers.EmailField(source='user.email', required=False)
+    user_role = serializers.CharField(read_only=True)
+    confirmed = serializers.BooleanField(read_only=True)
 
 # -----------------------------------------------------------------------------
 
