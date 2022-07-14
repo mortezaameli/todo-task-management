@@ -27,3 +27,7 @@ This project written in the python Django Rest Framework (DRF)
 * [Project members list](api-docs-md/project_members_list.md) : &nbsp; **`GET`**  &nbsp;  `/project/:pk/members/`
 * [Project members delete](api-docs-md/project_members_delete.md) : &nbsp; **`DELETE`**  &nbsp;  `/project/:pk/member/`
 
+### Tasks
+* [Task list](api-docs-md/task_list.md) : &nbsp; **`GET`**  &nbsp;  `/project/:pk/tasks/`
+* [Create Task](api-docs-md/task_create.md) : &nbsp; **`POST`**  &nbsp;  `/project/:pk/task/`
+

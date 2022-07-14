@@ -338,7 +338,7 @@ class TaskView(APIView):
         try:
             membership = models.Membership.objects.get(project__id=project_id, user=self.request.user)
         except models.Membership.DoesNotExist:
-            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
 
         # # check user Admin of the project to which the task is to be added
         # if membership.user_role != models.Membership.ADMIN_ROLE:
