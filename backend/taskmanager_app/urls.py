@@ -10,6 +10,8 @@ urlpatterns = [
     path('project/<int:pk>/', ProjectView.as_view(), name='project_views'),
     path('project/<int:pk>/members/', ProjectMemberListView.as_view(), name='project_members_list'),
     path('project/<int:pk>/member/', ProjectMemberView.as_view(), name='project_member_delete'),
-    # path('task/', TaskCreateView.as_view()),
+    
+    path('project/<int:pk>/tasks/', TaskListView.as_view(), name='task_list'),
+    path('project/<int:pk>/task/', TaskView.as_view(), name='task_create'),
 
 ]

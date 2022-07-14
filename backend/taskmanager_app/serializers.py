@@ -20,6 +20,31 @@ class UserInlineSerializer(serializers.ModelSerializer):
 
 # -----------------------------------------------------------------------------
 
+class TaskSerializers(serializers.ModelSerializer):
+    creator = UserInlineSerializer(read_only=True)
+    class Meta:
+        model   = Task
+        # fields = '__all__'
+        fields = (
+            'id',
+            'project',
+            'phase',
+            'row_position',
+            'title',
+            'description',
+            'start_date',
+            'due_date',
+            'percentage',
+            'created_at',
+            'creator',
+        )
+        extra_kwargs = {
+            'project': {'required': False},
+            'title': {'required': True},
+        }
+
+# -----------------------------------------------------------------------------
+
 class MembershipSerializers(serializers.Serializer):
     id          = serializers.CharField(source='project.id', read_only=True)
     name        = serializers.CharField(source='project.name', read_only=True)
@@ -27,6 +52,7 @@ class MembershipSerializers(serializers.Serializer):
     inviter     = UserInlineSerializer(read_only=True)
     user_role   = serializers.CharField(required=True)
     confirmed   = serializers.BooleanField()
+    tasks       = TaskSerializers(source='project.tasks', many=True)
 
 # -----------------------------------------------------------------------------
 
@@ -47,11 +73,5 @@ class ProjectMemberSerializer(serializers.Serializer):
     email     = serializers.EmailField(source='user.email', required=False)
     user_role = serializers.CharField(read_only=True)
     confirmed = serializers.BooleanField(read_only=True)
-
-# -----------------------------------------------------------------------------
-
-class TaskCreateSerializers(serializers.Serializer):
-    project_id  = serializers.IntegerField(source='project.id', required=True)
-    title       = serializers.CharField(required=True)
 
 # -----------------------------------------------------------------------------

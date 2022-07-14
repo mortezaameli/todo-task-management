@@ -36,15 +36,25 @@ class Membership(models.Model):
 
 
 class Task(models.Model):
-    project     = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
-    owner       = models.ForeignKey(User, on_delete=models.CASCADE)
-    title       = models.CharField(max_length=256, blank=False, null=False)
-    description = models.TextField(default='', blank=True, null=True)
-    start_date  = models.DateTimeField(blank=True, null=True, default=None)
-    due_date    = models.DateTimeField(blank=True, null=True, default=None)
-    percentage  = models.PositiveIntegerField(default=0)
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
+    PHASE_TODO    = 'TODO'
+    PHASE_DOING   = 'DOING'
+    PHASE_DONE    = 'DONE '
+    PHASE_CHOICES = [
+        (PHASE_TODO,  'TODO' ),
+        (PHASE_DOING, 'DOING'),
+        (PHASE_DONE,  'DONE' ),
+    ]
+    project       = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
+    phase         = models.CharField(max_length=5, choices=PHASE_CHOICES, default=PHASE_TODO)
+    row_position  = models.PositiveSmallIntegerField(default=0)
+    creator       = models.ForeignKey(User, on_delete=models.CASCADE)
+    title         = models.CharField(max_length=256, blank=False, null=False)
+    description   = models.TextField(default='', blank=True, null=True)
+    start_date    = models.DateTimeField(blank=True, null=True, default=None)
+    due_date      = models.DateTimeField(blank=True, null=True, default=None)
+    percentage    = models.PositiveIntegerField(default=0)
+    created_at    = models.DateTimeField(auto_now_add=True)
+    updated_at    = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return self.title

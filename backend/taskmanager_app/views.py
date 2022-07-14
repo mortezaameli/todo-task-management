@@ -310,32 +310,44 @@ class ProjectInviteAnswerView(APIView):
 
 # -----------------------------------------------------------------------------
 
-class TaskCreateView(APIView):
+class TaskListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, *args, **kwargs):
+        project_id = self.kwargs['pk']
+        tasks = models.Task.objects.filter(project__id=project_id)
+        serializer = serializers.TaskSerializers(tasks, many=True)
+        return Response(data=serializer.data)
+
+# -----------------------------------------------------------------------------
+
+class TaskView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         '''
         create a Task in Project,
         '''
-        serializer= serializers.TaskCreateSerializers(data=request.data)
+        project_id = self.kwargs['pk']
+
+        serializer= serializers.TaskSerializers(data=request.data)
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         # check this user has a membership of project
-        project_id = serializer.data.get('project_id')
         try:
             membership = models.Membership.objects.get(project__id=project_id, user=self.request.user)
         except models.Membership.DoesNotExist:
             return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_404_NOT_FOUND)
 
-        # check user Admin of the project to which the task is to be added
-        if membership.user_role != models.Membership.ADMIN_ROLE:
-            return Response(data={'err': 'Only the project admin can add task'}, status=status.HTTP_403_FORBIDDEN)
+        # # check user Admin of the project to which the task is to be added
+        # if membership.user_role != models.Membership.ADMIN_ROLE:
+        #     return Response(data={'err': 'Only the project admin can add task'}, status=status.HTTP_403_FORBIDDEN)
 
         # create new Task object
         task = models.Task()
         task.project = membership.project
-        task.owner = self.request.user
+        task.creator = self.request.user
         task.title = serializer.data.get('title')
         task.save()
         
