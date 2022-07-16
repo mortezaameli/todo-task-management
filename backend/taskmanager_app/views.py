@@ -322,6 +322,7 @@ class TaskView(APIView):
         if not serializer.is_valid():
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+        # check task exist
         try:
             task = models.Task.objects.get(pk=task_id)
         except models.Task.DoesNotExist:
@@ -361,4 +362,33 @@ class TaskView(APIView):
         serializer = serializers.TaskSerializers(task)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
         
+    def delete(self, request, *args, **kwargs):
+        '''
+        delete task with id number
+        '''
+        task_id = self.kwargs['pk']
+
+        # check task exist
+        try:
+            task = models.Task.objects.get(pk=task_id)
+        except models.Task.DoesNotExist:
+            return Response(data={'err': 'Task does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        # check this user has a membership of project
+        try:
+            membership = models.Membership.objects.get(project=task.project, user=self.request.user)
+        except models.Membership.DoesNotExist:
+            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
+
+        # check user is owner of task
+        is_user_admin_project =  membership.user_role == models.Membership.ADMIN_ROLE
+        is_user_creator_task  = task.creator == self.request.user
+        if not is_user_admin_project and not is_user_creator_task:
+            return Response(data={'err': 'Only the admin of project or creator of task can delete it'}, status=status.HTTP_403_FORBIDDEN)
+
+        # delete the task and reordering the tasks that are in that same phase
+        task.delete()
+        models.Task.objects.filter(project=task.project, phase=task.phase, row_position__gt=task.row_position).update(row_position=F('row_position')-1)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 # -----------------------------------------------------------------------------
