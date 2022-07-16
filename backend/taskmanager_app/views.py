@@ -6,6 +6,7 @@ from . import serializers, models
 import rest_framework.status as HTTP_status
 from rest_framework import status
 from rest_framework import permissions
+from django.db.models import F
 
 # -----------------------------------------------------------------------------
 
@@ -127,48 +128,6 @@ class ProjectView(APIView):
         membership.user_role = models.Membership.ADMIN_ROLE
         membership.confirmed = True
         return membership
-
-# -----------------------------------------------------------------------------
-
-# class ProjectCreateView(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def post(self, request, *args, **kwargs):
-#         '''
-#         create a project Model,
-#         then add this project along with user creator data to Membership Model
-#         '''
-#         serializer= serializers.ProjectSerializers(data=request.data)
-#         if not serializer.is_valid():
-#             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-#         # create new Project object 
-#         project = models.Project(**serializer.validated_data)
-#         project.save()
-
-#         try:
-#             # create a new membership object
-#             membership = self.create_membership(project)
-#             membership.save()
-
-#         # if the membership object faild to save, must be deleted problematic project
-#         except:
-#             project.delete()
-#             return Response(data={'err': 'Failed to create project'}, status=HTTP_status.HTTP_400_BAD_REQUEST)
-        
-#         return Response(data={'id': project.pk}, status=status.HTTP_201_CREATED)
-    
-#     def create_membership(self, project):
-#         '''
-#         create a membership object base on new project created by logined in user
-#         '''
-#         membership = models.Membership()
-#         membership.project = project
-#         membership.user = self.request.user
-#         membership.inviter = None
-#         membership.user_role = models.Membership.ADMIN_ROLE
-#         membership.confirmed = True
-#         return membership
 
 # -----------------------------------------------------------------------------
 
@@ -326,7 +285,7 @@ class TaskView(APIView):
 
     def post(self, request, *args, **kwargs):
         '''
-        create a Task in Project,
+        create a Task in Project
         '''
         project_id = self.kwargs['pk']
 
@@ -340,17 +299,66 @@ class TaskView(APIView):
         except models.Membership.DoesNotExist:
             return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
 
-        # # check user Admin of the project to which the task is to be added
-        # if membership.user_role != models.Membership.ADMIN_ROLE:
-        #     return Response(data={'err': 'Only the project admin can add task'}, status=status.HTTP_403_FORBIDDEN)
-
         # create new Task object
         task = models.Task()
-        task.project = membership.project
-        task.creator = self.request.user
-        task.title = serializer.data.get('title')
+        task.project      = membership.project
+        task.phase        = models.Task.PHASE_TODO
+        task.row_position = models.Task.objects.filter(project=task.project, phase=models.Task.PHASE_TODO).count()
+        task.creator      = self.request.user
+        task.title        = serializer.data.get('title')
         task.save()
         
-        return Response(data={'id': task.pk}, status=status.HTTP_201_CREATED)
+        data = {
+            'id': task.pk,
+            'phase': task.phase,
+            'row_position': task.row_position,
+        }
+        return Response(data=data, status=status.HTTP_201_CREATED)
 
+    def put(self, request, *args, **kwargs):
+        task_id = self.kwargs['pk']
+
+        serializer= serializers.TaskUpdateSerializers(data=request.data)
+        if not serializer.is_valid():
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            task = models.Task.objects.get(pk=task_id)
+        except models.Task.DoesNotExist:
+            return Response(data={'err': 'Task does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        # check this user has a membership of project
+        try:
+            membership = models.Membership.objects.get(project=task.project, user=self.request.user)
+        except models.Membership.DoesNotExist:
+            return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
+
+        if not 'phase' in serializer.data:
+            for k in serializer.data:
+                setattr(task, k, serializer.data[k])
+            task.save()
+        else:
+            before_phase = task.phase
+            before_row_position = task.row_position
+            new_phase        = serializer.data.get('phase')
+            new_row_position = serializer.data.get('row_position')
+            if before_phase != new_phase:
+                models.Task.objects.filter(project=task.project, phase=new_phase, row_position__gte=new_row_position).update(row_position=F('row_position')+1)
+                task.phase = new_phase
+                task.row_position = new_row_position
+                task.save()
+                models.Task.objects.filter(project=task.project, phase=before_phase, row_position__gt=before_row_position).update(row_position=F('row_position')-1)
+            else:
+                if new_row_position > before_row_position:
+                    models.Task.objects.filter(project=task.project, phase=before_phase, row_position__gt=before_row_position, row_position__lte=new_row_position).update(row_position=F('row_position')-1)
+                    task.row_position = new_row_position
+                    task.save()
+                elif new_row_position < before_row_position:
+                    models.Task.objects.filter(project=task.project, phase=before_phase, row_position__lt=before_row_position, row_position__gte=new_row_position).update(row_position=F('row_position')+1)
+                    task.row_position = new_row_position
+                    task.save()
+
+        serializer = serializers.TaskSerializers(task)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        
 # -----------------------------------------------------------------------------

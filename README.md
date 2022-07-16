@@ -30,4 +30,4 @@ This project written in the python Django Rest Framework (DRF)
 ### Tasks
 * [Task list](api-docs-md/task_list.md) : &nbsp; **`GET`**  &nbsp;  `/project/:pk/tasks/`
 * [Create Task](api-docs-md/task_create.md) : &nbsp; **`POST`**  &nbsp;  `/project/:pk/task/`
-
+* [Update Task](api-docs-md/task_update.md) : &nbsp; **`PUT`**  &nbsp;  `/project/task/<int:pk>/`

@@ -7,11 +7,12 @@ class ProjectAdmin(admin.ModelAdmin):
 
 
 class TaskAmdin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'description', 'project']
+    list_display = ['id', 'title', 'phase', 'row_position', 'project']
 
 
 class MembershipAmdin(admin.ModelAdmin):
     list_display = ['id', 'project', 'user', 'inviter', 'user_role', 'confirmed']
+
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Membership, MembershipAmdin)
