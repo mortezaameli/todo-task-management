@@ -38,7 +38,7 @@ class Membership(models.Model):
 class Task(models.Model):
     PHASE_TODO    = 'TODO'
     PHASE_DOING   = 'DOING'
-    PHASE_DONE    = 'DONE '
+    PHASE_DONE    = 'DONE'
     PHASE_CHOICES = [
         (PHASE_TODO,  'TODO' ),
         (PHASE_DOING, 'DOING'),
