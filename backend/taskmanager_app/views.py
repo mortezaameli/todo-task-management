@@ -307,13 +307,9 @@ class TaskView(APIView):
         task.creator      = self.request.user
         task.title        = serializer.data.get('title')
         task.save()
-        
-        data = {
-            'id': task.pk,
-            'phase': task.phase,
-            'row_position': task.row_position,
-        }
-        return Response(data=data, status=status.HTTP_201_CREATED)
+
+        serializer = serializers.TaskSerializers(task)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
         task_id = self.kwargs['pk']
