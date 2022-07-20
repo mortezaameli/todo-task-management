@@ -2,6 +2,9 @@
 
 Task management application that manage todo task
 
+Users can create different projects and invite other users to collaborate on the project.
+Each project consists of some tasks that fall into categories ToDo, Doing, Done.
+
 This project written in the python Django Rest Framework (DRF)
 
 **Here is the `backend` of the project**
