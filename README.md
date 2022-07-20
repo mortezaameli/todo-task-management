@@ -4,6 +4,11 @@ Task management application that manage todo task
 
 This project written in the python Django Rest Framework (DRF)
 
+**Here is the `backend` of the project**
+
+
+**A friend has implemented a `frontend` in `React` using the APIs made here : [React FrontEnd](https://github.com/mojtaba1374/To-Do_TaskManager)**
+
 ## APIs Documentation
 
 ### Login and Register
