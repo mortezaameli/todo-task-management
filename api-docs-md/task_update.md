@@ -26,42 +26,42 @@
 ```json
 {
     "phase" : "TODO",      // ["TODO", "DOING", "DONE"]
-    "row_position" : 2,
+    "row_position" : 2
 }
 ```
 
 * update title of task:
 ```json
 {
-    "title" : "new_title",
+    "title" : "new_title"
 }
 ```
 
 * update description of task
 ```json
 {
-    "description" : "new_description",
+    "description" : "new_description"
 }
 ```
 
 * update start_date of task
 ```json
 {
-    "start_date" : "new_start_date",
+    "start_date" : "2022-07-17T10:21:50Z"
 }
 ```
 
 * update due_date of task
 ```json
 {
-    "due_date" : "new_due_date",
+    "due_date" : null
 }
 ```
 
 * update percentage of task
 ```json
 {
-    "percentage" : 35,  //[0-100]
+    "percentage" : 35  //[0-100]
 }
 ```
 
