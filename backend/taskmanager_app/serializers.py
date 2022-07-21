@@ -80,7 +80,7 @@ class TaskUpdateSerializers(serializers.Serializer):
     phase        = serializers.CharField(required=False)
     row_position = serializers.IntegerField(required=False, min_value=0)
     title        = serializers.CharField(required=False, max_length=256)
-    description  = serializers.CharField(required=False)
+    description  = serializers.CharField(required=False, allow_blank=True)
     start_date   = serializers.DateTimeField(required=False)
     due_date     = serializers.DateTimeField(required=False)
     percentage   = serializers.IntegerField(required=False, min_value=0, max_value=100)
