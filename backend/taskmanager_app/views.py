@@ -330,18 +330,22 @@ class TaskView(APIView):
         except models.Membership.DoesNotExist:
             return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
 
-        # remove datetime field key that have 'empty' value
-        serialized_data = serializer.data
-        if 'start_date' in serialized_data:
-            if serialized_data['start_date'] == '1900-01-01T00:00:00Z':
-                serialized_data['start_date'] = None
-        if 'due_date' in serializer.data:
-            if serialized_data['due_date'] == '1900-01-01T00:00:00Z':
-                serialized_data['due_date'] = None
-
-        if not 'phase' in serialized_data:
-            for k in serialized_data:
-                setattr(task, k, serialized_data[k])
+        # update base on passes field
+        if 'start_date' in serializer.data:
+            if serializer.data['start_date'] == '1900-01-01T00:00:00Z':
+                task.start_date = None
+            else:
+                task.start_date = self.get_datetime_from_str(serializer.data.get('start_date'))
+            task.save()
+        elif 'due_date' in serializer.data:
+            if serializer.data['due_date'] == '1900-01-01T00:00:00Z':
+                task.due_date = None
+            else:
+                task.due_date = self.get_datetime_from_str(serializer.data.get('due_date'))
+            task.save()
+        elif not 'phase' in serializer.data:
+            for k in serializer.data:
+                setattr(task, k, serializer.data[k])
             task.save()
         else:
             before_phase = task.phase
@@ -396,4 +400,11 @@ class TaskView(APIView):
         models.Task.objects.filter(project=task.project, phase=task.phase, row_position__gt=task.row_position).update(row_position=F('row_position')-1)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def get_datetime_from_str(self, str_date):
+        from datetime import datetime
+        try:
+            return datetime.strptime(str_date, '%Y-%m-%dT%H:%M:%SZ')
+        except:
+            return None
 # -----------------------------------------------------------------------------

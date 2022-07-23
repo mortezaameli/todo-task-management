@@ -51,10 +51,10 @@
 }
 ```
 
-* update due_date of task
+* update due_date of task to empty value
 ```json
 {
-    "due_date" : "empty"
+    "due_date" : ""
 }
 ```
 
