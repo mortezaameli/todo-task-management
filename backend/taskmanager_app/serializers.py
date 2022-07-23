@@ -81,8 +81,8 @@ class TaskUpdateSerializers(serializers.Serializer):
     row_position = serializers.IntegerField(required=False, min_value=0)
     title        = serializers.CharField(required=False, max_length=256)
     description  = serializers.CharField(required=False, allow_blank=True)
-    start_date   = serializers.DateTimeField(required=False, input_formats=['%Y-%m-%dT%H:%M:%SZ'], allow_null=True)
-    due_date     = serializers.DateTimeField(required=False, input_formats=['%Y-%m-%dT%H:%M:%SZ'], allow_null=True)
+    start_date   = serializers.DateTimeField(required=False, input_formats=['%Y-%m-%dT%H:%M:%SZ', 'empty'])
+    due_date     = serializers.DateTimeField(required=False, input_formats=['%Y-%m-%dT%H:%M:%SZ', 'empty'])
     percentage   = serializers.IntegerField(required=False, min_value=0, max_value=100)
 
     def validate(self, attrs):

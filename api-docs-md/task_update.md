@@ -54,7 +54,7 @@
 * update due_date of task
 ```json
 {
-    "due_date" : null
+    "due_date" : "empty"
 }
 ```
 

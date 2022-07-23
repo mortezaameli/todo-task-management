@@ -330,9 +330,18 @@ class TaskView(APIView):
         except models.Membership.DoesNotExist:
             return Response(data={'err': 'You are not a member of this project'}, status=status.HTTP_403_FORBIDDEN)
 
-        if not 'phase' in serializer.data:
-            for k in serializer.data:
-                setattr(task, k, serializer.data[k])
+        # remove datetime field key that have 'empty' value
+        serialized_data = serializer.data
+        if 'start_date' in serialized_data:
+            if serialized_data['start_date'] == '1900-01-01T00:00:00Z':
+                serialized_data['start_date'] = None
+        if 'due_date' in serializer.data:
+            if serialized_data['due_date'] == '1900-01-01T00:00:00Z':
+                serialized_data['due_date'] = None
+
+        if not 'phase' in serialized_data:
+            for k in serialized_data:
+                setattr(task, k, serialized_data[k])
             task.save()
         else:
             before_phase = task.phase
