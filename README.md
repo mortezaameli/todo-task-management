@@ -7,10 +7,23 @@ Each project consists of some tasks that fall into categories ToDo, Doing, Done.
 
 This project written in the python Django Rest Framework (DRF)
 
-**Here is the `backend` of the project**
+> **Here is the `backend` of the project**
 
+> **A friend has implemented a `frontend` in `React` using the APIs made here : [React FrontEnd](https://github.com/mojtaba1374/To-Do_TaskManager)**
 
-**A friend has implemented a `frontend` in `React` using the APIs made here : [React FrontEnd](https://github.com/mojtaba1374/To-Do_TaskManager)**
+## Installation and Run server
+
+Create python virtualenv and activate it, then:
+
+Install requirement packages:
+```sh
+pip install requirements/requirements.txt
+```
+
+Running the server on port 8000
+```sh
+python backend/manage.py runserver
+```
 
 ## APIs Documentation
 
